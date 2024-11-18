@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8</TargetFrameworks>
+        <TargetFrameworks>net9.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <Platforms>AnyCPU</Platforms>
         <NoWarn>$(NoWarn);1591</NoWarn>
@@ -42,7 +42,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Soenneker.Extensions.HttpContent" Version="2.1.383" />
-      <PackageReference Include="Soenneker.Extensions.ValueTask" Version="2.1.51" />
+      <PackageReference Include="Soenneker.Extensions.HttpContent" Version="3.0.397" />
+      <PackageReference Include="Soenneker.Extensions.ValueTask" Version="3.0.52" />
     </ItemGroup>
 </Project>
