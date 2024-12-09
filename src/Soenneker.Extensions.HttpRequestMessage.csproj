@@ -42,7 +42,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Soenneker.Extensions.HttpContent" Version="3.0.458" />
+      <PackageReference Include="Soenneker.Extensions.HttpContent" Version="3.0.459" />
       <PackageReference Include="Soenneker.Extensions.ValueTask" Version="3.0.54" />
     </ItemGroup>
 </Project>
