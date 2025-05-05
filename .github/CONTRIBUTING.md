@@ -1,4 +1,4 @@
-# Contributing to Soenneker.Extensions.HttpRequestMessage
+﻿# Contributing to Soenneker.Extensions.HttpRequestMessage
 
 We're excited that you're interested in contributing!
 
