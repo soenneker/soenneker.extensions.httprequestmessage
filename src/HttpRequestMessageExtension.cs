@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Utils.MemoryStream.Abstract;
 
 namespace Soenneker.Extensions.HttpRequestMessage;
 
@@ -18,6 +19,7 @@ public static class HttpRequestMessageExtension
     /// cloned. The returned request is independent of the original and can be sent or modified separately. Note that
     /// some properties, such as the request's underlying transport state, are not copied.</remarks>
     /// <param name="request">The <see cref="System.Net.Http.HttpRequestMessage"/> to clone. Cannot be null.</param>
+    /// <param name="memoryStreamUtil"></param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous cloning of the request content. The default
     /// value is <see cref="CancellationToken.None"/>.</param>
     /// <returns>A <see cref="ValueTask{TResult}"/> that represents the asynchronous operation. The result contains a new <see
@@ -25,14 +27,14 @@ public static class HttpRequestMessageExtension
     /// the original request.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="request"/> is null.</exception>
     public static ValueTask<System.Net.Http.HttpRequestMessage> Clone(this System.Net.Http.HttpRequestMessage request,
-        CancellationToken cancellationToken = default)
+        IMemoryStreamUtil? memoryStreamUtil = null, CancellationToken cancellationToken = default)
     {
         if (request is null)
             throw new ArgumentNullException(nameof(request));
 
         // Fast path: no async state machine if there is no content
         if (request.Content is not null)
-            return CloneWithContent(request, cancellationToken);
+            return CloneWithContent(request, memoryStreamUtil, cancellationToken);
 
         var clone = new System.Net.Http.HttpRequestMessage(request.Method, request.RequestUri)
         {
@@ -50,7 +52,7 @@ public static class HttpRequestMessageExtension
     }
 
     private static async ValueTask<System.Net.Http.HttpRequestMessage> CloneWithContent(System.Net.Http.HttpRequestMessage request,
-        CancellationToken cancellationToken)
+        IMemoryStreamUtil? memoryStreamUtil, CancellationToken cancellationToken)
     {
         var clone = new System.Net.Http.HttpRequestMessage(request.Method, request.RequestUri)
         {
@@ -58,7 +60,7 @@ public static class HttpRequestMessageExtension
             VersionPolicy = request.VersionPolicy
         };
 
-        clone.Content = await request.Content!.Clone(cancellationToken: cancellationToken)
+        clone.Content = await request.Content!.Clone(memoryStreamUtil, cancellationToken: cancellationToken)
                                      .NoSync();
 
         foreach (KeyValuePair<string, object?> option in request.Options)
