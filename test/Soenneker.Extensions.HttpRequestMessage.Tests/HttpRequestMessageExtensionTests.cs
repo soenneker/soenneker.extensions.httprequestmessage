@@ -1,11 +1,10 @@
 using Soenneker.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Extensions.HttpRequestMessage.Tests;
 
 public class HttpRequestMessageExtensionTests : UnitTest
 {
-    [Fact]
+    [Test]
     public void Default()
     {
 
