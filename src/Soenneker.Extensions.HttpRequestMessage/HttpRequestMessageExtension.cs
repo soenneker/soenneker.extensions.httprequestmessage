@@ -8,6 +8,9 @@ using Soenneker.Utils.MemoryStream.Abstract;
 
 namespace Soenneker.Extensions.HttpRequestMessage;
 
+/// <summary>
+/// Represents the http request message extension.
+/// </summary>
 public static class HttpRequestMessageExtension
 {
     /// <summary>
