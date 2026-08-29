@@ -4,7 +4,7 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.extensions.httprequestmessage/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.extensions.httprequestmessage/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Extensions.HttpRequestMessage
-Clones an `HttpRequestMessage` so it can be modified or sent independently of the original request.
+Extension methods for copying, inspecting, and preparing `HttpRequestMessage` instances for sending, retrying, and diagnostics.
 
 ## Installation
 
