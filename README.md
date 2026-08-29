@@ -4,7 +4,7 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.extensions.httprequestmessage/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.extensions.httprequestmessage/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Extensions.HttpRequestMessage
-A collection of helpful HttpRequestMessage extension methods.
+Clones an `HttpRequestMessage` so it can be modified or sent independently of the original request.
 
 ## Installation
 
@@ -12,15 +12,20 @@ A collection of helpful HttpRequestMessage extension methods.
 dotnet add package Soenneker.Extensions.HttpRequestMessage
 ```
 
-## Quick start
+## Usage
 
 ```csharp
 using Soenneker.Extensions.HttpRequestMessage;
 
-// Given an existing System.Net.Http.HttpRequestMessage named request:
-var result = request.Clone();
+using var original = new HttpRequestMessage(HttpMethod.Post, "https://api.example.com/orders")
+{
+    Content = JsonContent.Create(order)
+};
+
+using HttpRequestMessage retry = await original.Clone();
+retry.Headers.Add("X-Retry", "1");
 ```
 
-## Common operations
+`Clone()` copies the method, URI, HTTP version and version policy, request headers, options, and content headers/body. Content is buffered into a separate stream, so disposing or consuming one request does not consume the other's body. Transport state associated with a request that has already been sent is not copied.
 
-- `Clone()` - Creates a deep copy of the specified `System.Net.Http.HttpRequestMessage` instance, including its headers, properties, and content.
+The method returns `ValueTask<HttpRequestMessage>`. It completes synchronously when there is no content; content cloning is asynchronous and honors cancellation. The caller owns and must dispose the returned request. Passing null throws `ArgumentNullException`.
