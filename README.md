@@ -22,10 +22,27 @@ using var original = new HttpRequestMessage(HttpMethod.Post, "https://api.exampl
     Content = JsonContent.Create(order)
 };
 
-using HttpRequestMessage retry = await original.Clone();
-retry.Headers.Add("X-Retry", "1");
+using HttpRequestMessage retry = await original.Clone(cancellationToken: cancellationToken);
+
+using HttpResponseMessage firstResponse = await httpClient.SendAsync(original, cancellationToken);
+
+if (!firstResponse.IsSuccessStatusCode)
+{
+    retry.Headers.Add("X-Retry", "1");
+    using HttpResponseMessage retryResponse = await httpClient.SendAsync(retry, cancellationToken);
+}
 ```
 
-`Clone()` copies the method, URI, HTTP version and version policy, request headers, options, and content headers/body. Content is buffered into a separate stream, so disposing or consuming one request does not consume the other's body. Transport state associated with a request that has already been sent is not copied.
+Create every clone before sending the original when its content may be backed by a non-seekable stream. Each request message can then be sent once.
+
+`Clone()` copies the method, URI, HTTP version and version policy, request headers, options, and content headers/body. The body is buffered independently, so disposing or consuming one request does not consume the other's body. Transport state associated with a request that has already been sent is not copied.
+
+Option values are copied by reference. If an option contains a mutable object, the original and clone still share that object.
+
+An application already using pooled memory streams can pass its scoped utility while retaining ownership of the long-lived client:
+
+```csharp
+using HttpRequestMessage copy = await request.Clone(memoryStreamUtil, cancellationToken);
+```
 
 The method returns `ValueTask<HttpRequestMessage>`. It completes synchronously when there is no content; content cloning is asynchronous and honors cancellation. The caller owns and must dispose the returned request. Passing null throws `ArgumentNullException`.

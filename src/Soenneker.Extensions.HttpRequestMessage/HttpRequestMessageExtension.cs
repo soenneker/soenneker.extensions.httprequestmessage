@@ -45,13 +45,16 @@ public static class HttpRequestMessageExtension
             VersionPolicy = request.VersionPolicy
         };
 
-        foreach (KeyValuePair<string, object?> option in request.Options)
-            clone.Options.TryAdd(option.Key, option.Value);
-
-        foreach (KeyValuePair<string, IEnumerable<string>> header in request.Headers)
-            clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
-
-        return new ValueTask<System.Net.Http.HttpRequestMessage>(clone);
+        try
+        {
+            CopyMetadata(request, clone);
+            return new ValueTask<System.Net.Http.HttpRequestMessage>(clone);
+        }
+        catch
+        {
+            clone.Dispose();
+            throw;
+        }
     }
 
     private static async ValueTask<System.Net.Http.HttpRequestMessage> CloneWithContent(System.Net.Http.HttpRequestMessage request,
@@ -63,15 +66,27 @@ public static class HttpRequestMessageExtension
             VersionPolicy = request.VersionPolicy
         };
 
-        clone.Content = await request.Content!.Clone(memoryStreamUtil, cancellationToken: cancellationToken)
-                                     .NoSync();
+        try
+        {
+            clone.Content = await request.Content!.Clone(memoryStreamUtil, cancellationToken: cancellationToken)
+                                         .NoSync();
 
+            CopyMetadata(request, clone);
+            return clone;
+        }
+        catch
+        {
+            clone.Dispose();
+            throw;
+        }
+    }
+
+    private static void CopyMetadata(System.Net.Http.HttpRequestMessage request, System.Net.Http.HttpRequestMessage clone)
+    {
         foreach (KeyValuePair<string, object?> option in request.Options)
             clone.Options.TryAdd(option.Key, option.Value);
 
         foreach (KeyValuePair<string, IEnumerable<string>> header in request.Headers)
             clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
-
-        return clone;
     }
 }
